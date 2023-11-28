@@ -1,5 +1,5 @@
-# Group#:
-# Student Names:
+# Group#: G37
+# Student Names: Jinil Patel, Pengyu Ji
 
 """
     This program implements a variety of the snake 
@@ -127,7 +127,9 @@ class Game():
         SPEED = 0.15     #speed of snake updates (sec)
         while self.gameNotOver:
             #complete the method implementation below
-            pass #remove this line from your implemenation
+            self.move()
+            time.sleep(SPEED)
+            #remove this line from your implemenation
 
     def whenAnArrowKeyIsPressed(self, e) -> None:
         """ 
@@ -161,6 +163,18 @@ class Game():
         """
         NewSnakeCoordinates = self.calculateNewCoordinates()
         #complete the method implementation below
+        
+        #generate a new snake coord
+        self.snakeCoordinates.remove(self.snakeCoordinates[0])
+        self.snakeCoordinates.append(NewSnakeCoordinates)
+
+        gameQueue.put({"move": self.snakeCoordinates})
+
+        #if prey captured, update score and create a new prey
+        print(gui.canvas.coords(gui.preyIcon))
+
+        #check if the game should be over
+        self.isGameOver(self.snakeCoordinates[-1])
 
 
     def calculateNewCoordinates(self) -> tuple:
@@ -174,6 +188,18 @@ class Game():
         """
         lastX, lastY = self.snakeCoordinates[-1]
         #complete the method implementation below
+        direction = self.direction
+        
+        if (direction == "Left"):
+            lastX -= 10
+        elif (direction == "Right"):
+            lastX += 10
+        elif (direction == "Up"):
+            lastY -= 10
+        else:
+            lastY += 10
+        
+        return (lastX, lastY)
 
 
     def isGameOver(self, snakeCoordinates) -> None:
@@ -186,6 +212,10 @@ class Game():
         """
         x, y = snakeCoordinates
         #complete the method implementation below
+        # print(x, y)
+        if (x <= 0 or x >= WINDOW_WIDTH or y <= 0 or y >= WINDOW_HEIGHT):
+            self.gameNotOver = False
+            gameQueue.put({"game_over": True})
 
     def createNewPrey(self) -> None:
         """ 
@@ -200,6 +230,15 @@ class Game():
         """
         THRESHOLD = 15   #sets how close prey can be to borders
         #complete the method implementation below
+        x_prey = random.randint(THRESHOLD, WINDOW_WIDTH - THRESHOLD)
+        y_prey = random.randint(THRESHOLD, WINDOW_HEIGHT - THRESHOLD)
+
+        x1 = x_prey - 5
+        y1 = y_prey - 5
+        x2 = x_prey + 5
+        y2 = y_prey + 5
+
+        gameQueue.put({"prey": (x1, y1, x2, y2)})
 
 
 if __name__ == "__main__":
